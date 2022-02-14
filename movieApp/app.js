@@ -3,10 +3,37 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const session = require('express-session');
+const passport = require('passport');
+const GitHubStrategy = require('passport-github').Strategy;
 
 var indexRouter = require('./routes/index');
 
 var app = express();
+
+// ===================PASSPORT CONFIG==============================
+app.use(
+  session({
+    secret: 'ashvagandha',
+    resave: false,
+    saveUninitialized: true,
+  }),
+);
+app.use(passport.initialize());
+app.use(passport.session());
+const passportConfig = require('./config');
+passport.use(
+  new GitHubStrategy(passportConfig, function (accessToken, refreshToken, profile, cb) {
+    return cb(null, profile);
+  }),
+);
+passport.serializeUser((user, cb) => {
+  cb(null, user);
+});
+passport.deserializeUser((user, cb) => {
+  cb(null, user);
+});
+// ================================================================
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
